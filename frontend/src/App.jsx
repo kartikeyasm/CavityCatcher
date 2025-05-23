@@ -1,53 +1,85 @@
 import React, { useRef, useState } from "react";
 
 export default function App() {
-  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null); 
   const [report, setReport] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInput = useRef();
 
-  const handleFileChange = (e) => {
+  // Handle file selection and conversion to JPEG
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
+      setSelectedFile(file);
+
+      // Send to backend for conversion
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("http://localhost:8000/convert-dicom-to-jpg/", {
+          method: "POST",
+          body: formData,
+        });
+        if (response.ok) {
+          console.log(response);                                                              {/* Loged the response for debugging */}
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          setImageUrl(url);
+        } else {
+          setImageUrl(null);
+        }
+      } catch (err) {
+        setImageUrl(null);
+      }
     }
   };
 
-  const handlePredict = () => {
-    setReport(
-      "Detected: Cavity on upper left molar. Advice: Schedule a restoration appointment."
-    );
+  // Handle prediction (diagnostic report)
+  const handlePredict = async () => {
+    if (!selectedFile) {
+      setReport("Please select a file first.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await fetch("http://localhost:8000/predict/", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      setReport(data.report || "Prediction done.");
+    } catch (error) {
+      setReport("Error uploading file.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg flex">
+        
         {/* Left Panel */}
         <div className="w-2/3 p-8 flex flex-col items-center border-r">
+          
           <h2 className="text-xl font-bold mb-4">Dental X-ray Viewer</h2>
+          
           <div className="w-full flex flex-col items-center">
             <input
               type="file"
               accept=".dcm,.rvg"
               ref={fileInput}
               onChange={handleFileChange}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-full file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100
-                cursor-pointer
-                border border-gray-300 rounded-lg
-                bg-gray-50 focus:ring-2 focus:ring-blue-500"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
             />
             <p className="mt-1 text-sm text-gray-500 self-start">
               Supported formats: .dcm, .rvg
             </p>
 
-            {/* Rest of your existing image preview and predict button */}
-            {image ? (
+            {imageUrl ? (
               <img
-                src={image}
+                src={imageUrl}
                 alt="X-ray Preview"
                 className="w-full max-w-md h-auto border rounded mb-4 mt-4"
               />
@@ -56,6 +88,7 @@ export default function App() {
                 No image uploaded
               </div>
             )}
+            
             <button
               onClick={handlePredict}
               className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
@@ -64,8 +97,8 @@ export default function App() {
             </button>
           </div>
         </div>
-        
-        {/* Right Panel (unchanged) */}
+
+        {/* Right Panel */}
         <div className="w-1/3 p-8 flex flex-col">
           <h2 className="text-xl font-bold mb-4">Diagnostic Report</h2>
           <div className="flex-1 bg-gray-50 p-4 rounded shadow-inner">
