@@ -1,70 +1,93 @@
 import React, { useRef, useState } from "react";
+import AnnotatedImage from "./components/AnnotatedImage";
 
 export default function App() {
-  const [imageUrl, setImageUrl] = useState(null); 
+  const [imageUrl, setImageUrl] = useState(null);
   const [report, setReport] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [convertedImageBlob, setConvertedImageBlob] = useState(null);
+  const [predictions, setPredictions] = useState([]);
   const fileInput = useRef();
 
   // Handle file selection and conversion to JPEG
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
+    if (!file) return;
 
-      // Send to backend for conversion
+    try {
       const formData = new FormData();
       formData.append("file", file);
 
-      try {
-        const response = await fetch("http://localhost:8000/convert-dicom-to-jpg/", {
-          method: "POST",
-          body: formData,
-        });
-        if (response.ok) {
-          console.log(response);                                                              {/* Loged the response for debugging */}
-          const blob = await response.blob();
-          const url = URL.createObjectURL(blob);
-          setImageUrl(url);
-        } else {
-          setImageUrl(null);
-        }
-      } catch (err) {
-        setImageUrl(null);
+      const response = await fetch("http://localhost:8000/convert-dicom-to-jpg/", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Conversion failed");
       }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+
+      setImageUrl(url);
+      setConvertedImageBlob(blob);
+      setPredictions([]); // Clear previous predictions
+      setReport("");
+    } catch (err) {
+      setImageUrl(null);
+      setConvertedImageBlob(null);
+      setReport("Failed to convert image");
     }
   };
 
-  // Handle prediction (diagnostic report)
+  // Handle prediction using converted JPEG
   const handlePredict = async () => {
-    if (!selectedFile) {
-      setReport("Please select a file first.");
+    if (!convertedImageBlob) {
+      setReport("Please convert an image first");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", selectedFile);
 
     try {
+      const jpgFile = new File(
+        [convertedImageBlob],
+        "converted_image.jpg",
+        { type: "image/jpeg" }
+      );
+
+      const formData = new FormData();
+      formData.append("image", jpgFile);
+
       const response = await fetch("http://localhost:8000/predict/", {
         method: "POST",
         body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error("Prediction failed");
+      }
+
       const data = await response.json();
-      setReport(data.report || "Prediction done.");
+      setPredictions(data.predictions || []);
+
+      const reportContent = data.predictions?.map(p =>
+        `${p.class} (${(p.confidence * 100).toFixed(1)}%)`
+      ).join("\n") || "No anomalies detected";
+
+      setReport(reportContent);
     } catch (error) {
-      setReport("Error uploading file.");
+      setReport("Error analyzing image");
+      setPredictions([]);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="w-full max-w-5xl bg-white rounded-lg shadow-lg flex">
-        
+
         {/* Left Panel */}
         <div className="w-2/3 p-8 flex flex-col items-center border-r">
-          
           <h2 className="text-xl font-bold mb-4">Dental X-ray Viewer</h2>
-          
+
           <div className="w-full flex flex-col items-center">
             <input
               type="file"
@@ -77,21 +100,30 @@ export default function App() {
               Supported formats: .dcm, .rvg
             </p>
 
+            {/* Show plain image if no predictions, else show annotated image */}
             {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt="X-ray Preview"
-                className="w-full max-w-md h-auto border rounded mb-4 mt-4"
-              />
+              predictions.length === 0 ? (
+                <img
+                  src={imageUrl}
+                  alt="X-ray Preview"
+                  className="w-full max-w-md h-auto border rounded mb-4 mt-4"
+                />
+              ) : (
+                <AnnotatedImage
+                  imageUrl={imageUrl}
+                  predictions={predictions}
+                />
+              )
             ) : (
               <div className="w-full max-w-md h-64 flex items-center justify-center border-2 border-dashed rounded text-gray-400 mb-4 mt-4">
                 No image uploaded
               </div>
             )}
-            
+
             <button
               onClick={handlePredict}
               className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+              disabled={!convertedImageBlob}
             >
               Analyze X-ray
             </button>
@@ -103,7 +135,7 @@ export default function App() {
           <h2 className="text-xl font-bold mb-4">Diagnostic Report</h2>
           <div className="flex-1 bg-gray-50 p-4 rounded shadow-inner">
             {report ? (
-              <p className="text-gray-800">{report}</p>
+              <p className="text-gray-800 whitespace-pre-wrap">{report}</p>
             ) : (
               <p className="text-gray-400">Report will appear here after prediction.</p>
             )}
