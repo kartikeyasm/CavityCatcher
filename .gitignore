@@ -1,0 +1,30 @@
+# Python
+backend/venv/
+**/__pycache__/
+backend/.env
+*.pyc
+*.pyo
+*.pyd
+
+# Node
+frontend/node_modules/
+frontend/.env
+
+# Logs
+*.log
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Python packaging/build
+backend/build/
+backend/dist/
+backend/*.egg-info/

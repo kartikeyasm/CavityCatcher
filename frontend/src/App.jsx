@@ -73,7 +73,7 @@ export default function App() {
         `${p.class} (${(p.confidence * 100).toFixed(1)}%)`
       ).join("\n") || "No anomalies detected";
 
-      setReport(reportContent);
+      setReport(data.diagnostic_report || "No report generated");
     } catch (error) {
       setReport("Error analyzing image");
       setPredictions([]);
@@ -135,7 +135,12 @@ export default function App() {
           <h2 className="text-xl font-bold mb-4">Diagnostic Report</h2>
           <div className="flex-1 bg-gray-50 p-4 rounded shadow-inner">
             {report ? (
-              <p className="text-gray-800 whitespace-pre-wrap">{report}</p>
+              <div className="text-gray-800 space-y-4">
+                <h3 className="font-semibold text-lg">Clinical Findings</h3>
+                <p className="whitespace-pre-wrap leading-relaxed">
+                  {report}
+                </p>
+              </div>
             ) : (
               <p className="text-gray-400">Report will appear here after prediction.</p>
             )}
