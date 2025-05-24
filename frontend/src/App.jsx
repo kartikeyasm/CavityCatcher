@@ -6,6 +6,7 @@ export default function App() {
   const [report, setReport] = useState("");
   const [convertedImageBlob, setConvertedImageBlob] = useState(null);
   const [predictions, setPredictions] = useState([]);
+  const [loader, setLoader] = useState(false);
   const fileInput = useRef();
 
   // Handle file selection and conversion to JPEG
@@ -46,7 +47,7 @@ export default function App() {
       setReport("Please convert an image first");
       return;
     }
-
+    setLoader(true);
     try {
       const jpgFile = new File(
         [convertedImageBlob],
@@ -77,6 +78,8 @@ export default function App() {
     } catch (error) {
       setReport("Error analyzing image");
       setPredictions([]);
+    } finally{
+      setLoader(false);
     }
   };
 
@@ -134,7 +137,16 @@ export default function App() {
         <div className="w-1/3 p-8 flex flex-col">
           <h2 className="text-xl font-bold mb-4">Diagnostic Report</h2>
           <div className="flex-1 bg-gray-50 p-4 rounded shadow-inner">
-            {report ? (
+            {loader ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                {/* Simple spinner */}
+                <svg className="animate-spin h-8 w-8 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+                <span className="text-blue-700 font-semibold">Generating Report...</span>
+              </div>
+            ) : report ? (
               <div className="text-gray-800 space-y-4">
                 <h3 className="font-semibold text-lg">Clinical Findings</h3>
                 <p className="whitespace-pre-wrap leading-relaxed">
