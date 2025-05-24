@@ -2,6 +2,7 @@ from fastapi import APIRouter, File, UploadFile, HTTPException
 import tempfile
 import os
 from app.services.roboflow_service import model
+from app.services.generate_report import generate_report
 
 router = APIRouter()
 
@@ -38,8 +39,9 @@ async def predict(image: UploadFile = File(..., description="JPEG image for pred
                     "height": p['height']
                 }
             })
-
-        return {"predictions": processed}
+        report = generate_report(processed)
+        
+        return {"predictions": processed, "diagnostic_report": report}
 
     except Exception as e:
         # Ensure temp file is deleted even if error occurs
