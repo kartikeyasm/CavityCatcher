@@ -82,7 +82,6 @@ ROBOFLOW_VERSION=your_version
 GOOGLE_API_KEY=your_gemini_api_key
 ```
 
-
 ---
 
 ## How It Works
@@ -107,5 +106,4 @@ GOOGLE_API_KEY=your_gemini_api_key
 
 ## Contact
 
-For questions or support, open an issue or contact
-📧 [kartikeyasm16@gmail.com](mailto:kartikeyasm16@gmail.com)
+For questions or support, open an issue or contact [kartikeyasm16@gmail.com](mailto:kartikeyasm16@gmail.com)

@@ -21,42 +21,35 @@ const AnnotatedImage = ({ imageUrl, predictions }) => {
         predictions.forEach(p => {
           const { x, y, width, height } = p.bbox;
           
-          // Draw bounding box
           ctx.strokeStyle = '#FF0000';
-          ctx.lineWidth = 3;  // Increased from 2
+          ctx.lineWidth = 3;  
           ctx.strokeRect(x - width/2, y - height/2, width, height);
 
-          // Text styling
-          const fontSize = 18;  // Increased from 14
-          ctx.font = `bold ${fontSize}px Arial`;  // Added bold
+          const fontSize = 18;  
+          ctx.font = `bold ${fontSize}px Arial`;  
           const label = `${p.class} ${(p.confidence * 100).toFixed(1)}%`;
           const textWidth = ctx.measureText(label).width;
           
-          // Calculate positions
-          const textX = x - width/2 + 8;  // Increased padding
-          const textY = y - height/2 - 10; // Adjusted position
-          const rectHeight = fontSize + 8; // Dynamic height based on font size
+          const textX = x - width/2 + 8;  
+          const textY = y - height/2 - 10; 
+          const rectHeight = fontSize + 8; 
 
-          // Draw label background
-          ctx.fillStyle = 'rgba(255, 0, 0, 1)';  // Slightly transparent
+          ctx.fillStyle = 'rgba(255, 0, 0, 1)';  
           ctx.fillRect(
             x - width/2, 
             y - height/2 - rectHeight, 
-            textWidth + 16,  // Increased padding
+            textWidth + 16,  
             rectHeight
           );
 
-          // Draw label text
           ctx.fillStyle = '#FFFFFF';
-          ctx.textBaseline = 'top';  // Better text alignment
+          ctx.textBaseline = 'top';  
           ctx.fillText(label, textX, textY - rectHeight + 4);
         });
       }
     };
 
-    return () => {
-      // Clean up object URL if needed
-    };
+    return () => {};
   }, [imageUrl, predictions]);
 
   return (

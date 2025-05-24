@@ -9,5 +9,6 @@ async def convert_dicom_to_jpg(file: UploadFile = File(...)):
     try:
         jpg_bytes = await dicom_to_jpg(file)
         return StreamingResponse(jpg_bytes, media_type="image/jpeg")
+    
     except Exception as e:
         raise HTTPException(500, detail=f"Conversion failed: {str(e)}")

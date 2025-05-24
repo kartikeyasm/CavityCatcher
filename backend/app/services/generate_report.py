@@ -3,10 +3,8 @@ from app.config import GOOGLE_API_KEY
 
 def generate_report(annotations: dict) -> str:
     try:
-        # Configure Gemini (do this once globally, not per request)
         client = genai.Client(api_key=GOOGLE_API_KEY)
 
-        # Structured prompt for better results
         prompt = f"""Act as a dental radiologist. Analyze these X-ray findings:
                     {annotations}
 
@@ -24,12 +22,10 @@ def generate_report(annotations: dict) -> str:
 
         print(response.text)
 
-        # Handle potential empty responses
         if not response.text:
             raise ValueError("Empty response from Gemini API")
 
         return response.text
 
     except Exception as e:
-        # Handle API errors gracefully
         return f"Report generation failed: {str(e)}"
