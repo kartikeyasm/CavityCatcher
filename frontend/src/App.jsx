@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
 import AnnotatedImage from "./components/AnnotatedImage";
 
+const apiUrl = import.meta.env.API_URL;
+
 export default function App() {
   const [imageUrl, setImageUrl] = useState(null);
   const [report, setReport] = useState("");
@@ -17,7 +19,7 @@ export default function App() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://localhost:8000/convert-dicom-to-jpg/", {
+      const response = await fetch( `${apiUrl}/convert-dicom-to-jpg/`, {
         method: "POST",
         body: formData,
       });
@@ -56,7 +58,7 @@ export default function App() {
       const formData = new FormData();
       formData.append("image", jpgFile);
 
-      const response = await fetch("http://localhost:8000/predict/", {
+      const response = await fetch( `${apiUrl}/predict/`, {
         method: "POST",
         body: formData,
       });
