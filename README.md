@@ -5,6 +5,12 @@ using FastAPI, React, Roboflow, and LLMs (Gemini)**
 
 ---
 
+## Link
+
+- **Frontend:** [https://cavity-catcher.vercel.app/](https://cavity-catcher.vercel.app/)
+
+---
+
 ## Features
 
 - Upload dental X-ray images in DICOM format
@@ -60,13 +66,6 @@ cd ../frontend
 npm install
 npm run dev
 ```
-
----
-
-## Links
-
-- **Frontend:** [http://localhost:5173](http://localhost:5173)
-- **Backend:** [http://localhost:8000](http://localhost:8000)
 
 ---
 
