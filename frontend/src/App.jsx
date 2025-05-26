@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import AnnotatedImage from "./components/AnnotatedImage";
 
-const apiUrl = import.meta.env.API_URL;
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function App() {
   const [imageUrl, setImageUrl] = useState(null);

@@ -20,7 +20,7 @@ def generate_report(annotations: dict) -> str:
         contents=[prompt]
         )
 
-        print(response.text)
+        #print(response.text)
 
         if not response.text:
             raise ValueError("Empty response from Gemini API")
