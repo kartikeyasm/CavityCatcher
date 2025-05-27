@@ -15,6 +15,8 @@ export default function App() {
     const file = e.target.files[0];
     if (!file) return;
 
+    setLoader(true);
+    console.log("Converting DICOM to JPG...");
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -27,7 +29,7 @@ export default function App() {
       if (!response.ok) {
         throw new Error("Conversion failed");
       }
-
+      console.log("Image conversion complete");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
 
@@ -39,6 +41,8 @@ export default function App() {
       setImageUrl(null);
       setConvertedImageBlob(null);
       setReport("Failed to convert image");
+    } finally{
+      setLoader(false);
     }
   };
 
@@ -48,6 +52,8 @@ export default function App() {
       return;
     }
     setLoader(true);
+    console.log("Analyzing X-Ray...");
+    
     try {
       const jpgFile = new File(
         [convertedImageBlob],
