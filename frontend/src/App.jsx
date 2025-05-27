@@ -131,7 +131,12 @@ export default function App() {
 
             <button
               onClick={handlePredict}
-              className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
+              className={`mt-2 px-6 py-2 rounded-full transition-all shadow-md
+                          ${convertedImageBlob 
+                            ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg cursor-pointer" 
+                            : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                          }`
+                        }
               disabled={!convertedImageBlob}
             >
               Analyze X-ray
